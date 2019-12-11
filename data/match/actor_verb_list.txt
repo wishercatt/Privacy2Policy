@@ -1,0 +1,25 @@
+[app alias]
+我们
+我
+APP
+
+[app verbs]
+收集
+获得
+访问
+读取
+使用
+记录
+请求
+调用
+
+[user alias]
+您
+你
+用户
+
+[user verbs]
+填写
+修改
+提供
+补充

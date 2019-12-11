@@ -1,0 +1,6 @@
+__pycache__
+test.py
+.idea
+output/log/*
+output/*.txt
+data/model/*

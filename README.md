@@ -11,3 +11,10 @@ pyltp需要自编译 (有编译好的64位pyltp放在./data/dependencies/目录)
 pip install ./data/dependencies/pyltp-0.2.1-cp37-cp37m-win_amd64.whl
 ```
 
+
+使用
+-i 指定mhtml文件/文件夹
+-m 指定标记文件/文件夹
+```
+Privacy2Policy.py -i ./input/mhtml -m ./input/markfiles
+```

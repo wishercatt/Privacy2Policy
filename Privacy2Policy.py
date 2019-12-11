@@ -9,15 +9,19 @@ from lib.log.Logger import LOGGER
 import lib.entity.FileResult as FileResult
 import lib.tools.tools as tools
 from lib.tools import mrtools
+from lib.tools.cmdline import cmdLineParser
 
 log = LOGGER
 SOURCE_PATH = dirname(abspath(__file__))
 
 
 def main():
-    outputMatchResultComByHtmlMark(inputpath='./input/mhtml',
-                                   flagpath='./input/markfiles',
-                                   keywords=['商品展示', '搜索', '下单', '交付', '展示'])
+    args = cmdLineParser()
+    if len(args) == 2:
+        outputMatchResultComByHtmlMark(inputpath=args[0][1], markpath=args[1][1],
+                                       keywords=['商品展示', '搜索', '下单', '交付', '展示'])
+    else:
+        log.error('err args')
     pass
 
 
@@ -90,8 +94,8 @@ def getMatchResultComByXmlFlag(xmlpath='./output/xml/', markpath='./input/markfi
     return res
 
 
-def outputMatchResultComByXmlMark(xmlpath='./output/xml/', flagpath='./input/markfiles/', keywords=None):
-    res = getMatchResultComByXmlFlag(xmlpath=xmlpath, markpath=flagpath, keywords=keywords)
+def outputMatchResultComByXmlMark(xmlpath='./output/xml/', markpath='./input/markfiles/', keywords=None):
+    res = getMatchResultComByXmlFlag(xmlpath=xmlpath, markpath=markpath, keywords=keywords)
     for label in res.keys():
         print(label + '\n')
         okcount = 0
@@ -169,10 +173,10 @@ def getMatchResultComByHtmlFlag(inputpath=None, markpath='./input/markfiles/', k
     return getMatchResultComByXmlFlag(keywords=keywords, markpath=markpath)
 
 
-def outputMatchResultComByHtmlMark(inputpath=None, flagpath='./input/markfiles/', keywords=None):
+def outputMatchResultComByHtmlMark(inputpath=None, markpath='./input/markfiles/', keywords=None):
     if not getXmlByMhtml(inputpath):
         return
-    outputMatchResultComByXmlMark(flagpath=flagpath, keywords=keywords)
+    outputMatchResultComByXmlMark(markpath=markpath, keywords=keywords)
 
 
 if __name__ == '__main__':

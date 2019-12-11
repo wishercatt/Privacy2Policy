@@ -41,11 +41,11 @@ class FileResult:
         if self.mark:
             self.__addMatchResult_Mark(mr)
         else:
-            self.__addMatchResult_No(mr)
+            self.__addMatchResult(mr)
 
         pass
 
-    def __addMatchResult_No(self, mr):
+    def __addMatchResult(self, mr):
         if self.result is None:
             self.result = []
         self.result.append(mr)

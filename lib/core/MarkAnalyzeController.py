@@ -28,7 +28,7 @@ class MarkAnalyzeController:
     __contents = {}  # {'filea': ''}
     __matchreslist = {}  # {'filea':[mr]}
 
-    def __init__(self, filepath='/input/flagfiles/'):
+    def __init__(self, filepath='/input/markfiles/'):
 
         if tools.isAbsPath(filepath):
             self.__filepath = filepath

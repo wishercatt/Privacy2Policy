@@ -17,7 +17,7 @@ def isAbsPath(path):
 
 def getAbsPathFromRoot(path):
     if not isAbsPath(path):
-        path = lib.tools.SOURCE_PATH + re.sub(r'^(\.)[\\/]', '\\\\', path)
-        if not path.endswith('.xml') and not path.endswith('.txt'):
-            path += '\\'
+        path = lib.tools.SOURCE_PATH + re.sub(r'(^(\./)?)|(^(\.\\)?)|[\\/]', '\\\\', path)
+        if not path.endswith('.xml') and not path.endswith('.txt') and not path.endswith('.jar'):
+            path = path if path.endswith('\\') else path + '\\'
     return path

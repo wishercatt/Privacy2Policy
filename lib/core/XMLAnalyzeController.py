@@ -35,7 +35,7 @@ class XMLAnalyzeController:
         if tools.isAbsPath(filepath):
             self.__filepath = filepath
         else:
-            self.__filepath = lib.core.SOURCE_PATH + filepath
+            self.__filepath = tools.getAbsPathFromRoot(filepath)
 
         filelist = []
         if os.path.isdir(self.__filepath):
@@ -96,11 +96,7 @@ class XMLAnalyzeController:
                 count += 1
         return count
 
-    def getPpAndSectionByLabel(self, label, keywords=None):
-
-        if not operator.eq(self.__keywords, keywords):
-            self.release()
-            self.setKeyowords(keywords)
+    def getPpAndSectionByLabel(self, label):
 
         if self.__pptosec[label]:
             return self.__pptosec[label]
@@ -139,10 +135,10 @@ class XMLAnalyzeController:
         self.__pptosec[label] = res
         return res
 
-    def getPpAndSection(self, keywords=None):
+    def getPpAndSection(self):
         labels = self.getAllLabel()
         for label in labels:
-            self.getPpAndSectionByLabel(label, keywords)
+            self.getPpAndSectionByLabel(label)
 
         return self.__pptosec
 

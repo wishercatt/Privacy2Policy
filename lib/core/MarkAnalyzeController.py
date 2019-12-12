@@ -99,9 +99,7 @@ class MarkAnalyzeController:
                         mr.actor += i + '|'
                     mr.actor = mr.actor[:-1]
                 if verbobj:
-                    for i in verbobj:
-                        mr.verb += i + '|'
-                    mr.verb = mr.verb[:-1]
+                    mr.verb.extend(verbobj)
                 if piobj:
                     mr.pi.extend(piobj)
                 if not mr.isMarkValid():

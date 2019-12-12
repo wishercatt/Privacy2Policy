@@ -120,8 +120,8 @@ class XMLAnalyzeController:
                         queue.put(child)
             else:
                 parent = nownode.parentNode
-                parentstr = parent.firstChild.data.strip()
-                childstr = nownode.firstChild.data.strip()
+                parentstr = parent.firstChild.data.strip() + '。'
+                childstr = nownode.firstChild.data.strip() + '。'
 
                 if not self.hasKeywords():
                     res[parentstr] = (res[parentstr] + childstr) if parentstr in res.keys() else childstr

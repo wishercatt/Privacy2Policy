@@ -16,7 +16,7 @@ def isMatchWithMark(mr: MatchResult, markmr: MatchResult):
     matchcount = 0
     for a in mr.pi:
         for b in markmr.pi:
-            if a == b:
+            if a.replace("您的", "") == b.replace("您的", ""): # todo p1
                 matchcount += 1
                 continue
     if matchcount == len(markmr.pi):

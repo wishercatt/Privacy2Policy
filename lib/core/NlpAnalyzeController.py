@@ -4,6 +4,7 @@ from lib.log.Logger import LOGGER
 import lib.entity.MatchResult
 import lib.core
 import os.path
+from lib.entity import VERB_USER_LIST, VERB_APP_LIST
 from pyltp import (
     Segmentor,
     Postagger,
@@ -123,12 +124,23 @@ class NlpAnalyzeController:
         voblist = self.__getVOBList()
 
         for pair in voblist:
-            mr = lib.entity.MatchResult.MatchResult(verb=self.__words[pair[1]], purpose=purpose, line=self.__line)
+            verblist = [pair[1]]
+            verblist.extend(self.__getVerbCOOListById(pair[1]))
+
+            inverblist = [] # 传参用动词列表
+            for i in verblist:
+                inverblist.append(self.__words[i])
+
+            mr = lib.entity.MatchResult.MatchResult(verb=inverblist, purpose=purpose, line=self.__line)
             mractorid = self.__getSBVStartByID(pair[1])
             if mractorid is not pair[1]:
                 mr.actor = self.__words[mractorid]
-            nlist = [pair[0]]
-            nlist.extend(self.__getCOOListById(pair[0]))
+            nlist = []
+            for v in verblist:
+                for npair, vpair in voblist:
+                    if v == vpair:
+                        nlist.append(npair)
+                        nlist.extend(self.__getCOOListById(npair))
             pis = []
             for n in nlist:
                 perres = ''
@@ -148,9 +160,12 @@ class NlpAnalyzeController:
     def __getVOBList(self):
         voblist = []
         for i in range(self.__length):
-            if self.__arcs[i].relation == 'VOB':
-                pair = [i, self.__arcs[i].head - 1]
-                voblist.append(pair)
+            if self.__arcs[i].relation == 'VOB' and self.__postTags[i] != 'v':
+                head = self.__arcs[i].head - 1
+                # 从动词表里过滤一下
+                if self.__words[head] in VERB_USER_LIST['verb'] or self.__words[head] in VERB_APP_LIST['verb']:
+                    pair = [i, head]
+                    voblist.append(pair)
 
         return voblist
 
@@ -160,7 +175,8 @@ class NlpAnalyzeController:
         if start != iid:
             return start
 
-        return self.__getSBVStartByIdUseSequence(iid)
+        # return self.__getSBVStartByIdUseSequence(iid) # todo 暂时不使用顺序
+        return iid
 
     def __getSBVStartByIdUseSequence(self, iid):
         start = iid
@@ -188,6 +204,17 @@ class NlpAnalyzeController:
 
         return coolist
 
+    def __getVerbCOOListById(self, start):
+        coolist = []
+        for i in range(start, self.__length):
+            if self.__arcs[i].relation == 'COO' and self.__arcs[i].head - 1 == start \
+                    and self.__postTags[self.__arcs[i].head - 1] == 'v':
+                # 从动词表里过滤一下
+                if self.__words[i] in VERB_USER_LIST['verb'] or self.__words[i] in VERB_APP_LIST['verb']:
+                    coolist.append(i)
+
+        return coolist
+
     def __getATTStartById(self, iid):
         start = iid
         for i in range(iid, -1, -1):
@@ -200,16 +227,16 @@ class NlpAnalyzeController:
     def __getChildStartbyId(self, iid):
         start = iid
         for i in range(iid, -1, -1):
-            if self.__arcs[i].relation != 'COO' and self.__arcs[i].relation != 'WP' and\
+            if self.__arcs[i].relation != 'COO' and self.__arcs[i].relation != 'WP' and \
                     self.__arcs[i].head - 1 == iid:
                 start = i
 
-        return start if start != -1 else iid
+        return self.__getChildStartbyId(start) if start != -1 and start != iid else iid
 
     def __getChildEndById(self, iid):
         end = iid
         for i in range(iid, self.__length):
-            if self.__arcs[i].relation != 'COO' and self.__arcs[i].relation != 'WP' and\
+            if self.__arcs[i].relation != 'COO' and self.__arcs[i].relation != 'WP' and \
                     self.__arcs[i].head - 1 == iid:
                 end = i
         return end if end != self.__length else iid

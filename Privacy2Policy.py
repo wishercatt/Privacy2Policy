@@ -11,6 +11,7 @@ import lib.entity.FileResult as FileResult
 import lib.tools.tools as tools
 from lib.tools import mrtools
 from lib.tools.cmdline import cmdLineParser
+from lib.entity import MatchResult
 
 log = LOGGER
 SOURCE_PATH = dirname(abspath(__file__))
@@ -68,18 +69,33 @@ def outputMatchResultComByXmlMark(xmlpath: str = './output/xml/', markpath: str 
             print('\n\t' + o[0].line)
             print('\t(m)' + o[0].toString())
             markcount += 1
+            allmr = MatchResult.MatchResult(actor='我们')  # todo 暂时统计用
             for a in o[1:]:
+
+                allmr.verb.extend(a.verb)
+                allmr.pi.extend(a.pi)
+
                 m = mrtools.isMatchWithMark(a, o[0])
                 if m == 2:
-                    print('\t(a)[ok] ' + a.toString())
-                    okcount += 1
+                    print('\t(a) ' + a.toString())
                 elif m == 1:
-                    print('\t(a)[half] ' + a.toString())
-                    halfcount += 1
+                    print('\t(a) ' + a.toString())
                 else:
-                    print('\t(a)[not] ' + a.toString())
-                    notcount += 1
-                fw.write(a.toPrintString() + '\n')
+                    print('\t(a) ' + a.toString())
+
+            # todo 暂时统计用
+            m = mrtools.isMatchWithMark(allmr, o[0])
+            if m == 2:
+                print('\t(all)[ok] ' + allmr.toString())
+                okcount += 1
+            elif m == 1:
+                print('\t(all)[half] ' + allmr.toString())
+                halfcount += 1
+            else:
+                print('\t(all)[not] ' + allmr.toString())
+                notcount += 1
+            fw.write(allmr.toPrintString() + '\n')
+
         print()
         print('未识别句子:')
         for i in range(len(reslabel['mark'])):
@@ -98,14 +114,16 @@ def outputMatchResultComByXmlMark(xmlpath: str = './output/xml/', markpath: str 
             fw.write(b.toPrintString() + '\n')
             notcount += 1
 
-        sumanacount = okcount + halfcount + notcount
-        print('正确识别个数' + str(okcount), end=' ')
+        sumcount = okcount + halfcount + notcount
+        print('正确识别个数 ' + str(okcount), end=' ')
         print('部分识别正确个数' + str(halfcount), end=' ')
-        print('错误识别个数' + str(notcount))
-        print('标注个数' + str(markcount))
-        print('正确百分比 ' + '{:.2%}'.format(okcount / sumanacount), end=' ')
-        print('部分正确百分比 ' + '{:.2%}'.format(halfcount / sumanacount), end=' ')
-        print('错误百分比 ' + '{:.2%}'.format(notcount / sumanacount))
+        print('错误识别个数 ' + str(notcount), end=' ')
+        print('漏报个数 ' + str(markcount - sumcount))
+        print('标注个数/总数 ' + str(markcount))
+        print('正确百分比 ' + '{:.2%}'.format(okcount / markcount), end=' ')
+        print('部分正确百分比 ' + '{:.2%}'.format(halfcount / markcount), end=' ')
+        print('错误百分比 ' + '{:.2%}'.format(notcount / markcount), end=' ')
+        print('漏报百分比 ' + '{:.2%}'.format((markcount - sumcount) / markcount))
         fw.close()
 
     pass

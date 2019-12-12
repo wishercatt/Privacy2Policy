@@ -8,14 +8,14 @@ log = LOGGER
 
 
 class MHTMLFormatController:
-    __inputpath = None
-    __outputpath = None
-    __jarpath = None
+    __inputpath = ''
+    __outputpath = ''
+    __jarpath = ''
 
-    def __init__(self, inputpath=None):
+    def __init__(self, inputpath: str = ''):
         self.__outputpath = tools.getAbsPathFromRoot(Config.OUTPUT_XML_PATH)
         self.__jarpath = tools.getAbsPathFromRoot(Config.PRIVACY_POLICY_JAR_PATH)
-        if inputpath is not None:
+        if inputpath != '':
             if not tools.isAbsPath(inputpath):
                 inputpath = tools.getAbsPathFromRoot(inputpath)
             self.__inputpath = inputpath
@@ -24,7 +24,7 @@ class MHTMLFormatController:
 
         pass
 
-    def startFormat(self):
+    def startFormatHtml(self):
         jarpath = self.__jarpath
         inputpath = self.__inputpath
         outputpath = self.__outputpath

@@ -40,10 +40,10 @@ def main():
 
 class NlpAnalyzeController:
     __line = ''
-    __words = []
-    __postTags = []
-    __arcs = []
-    __resultList = []
+    __words = None
+    __postTags = None
+    __arcs = None
+    __resultList = None  # []
     __length = 0
 
     __segMentor = None
@@ -104,20 +104,20 @@ class NlpAnalyzeController:
                 self.__postTags[i] = 'n'
         pass
 
-    # 打印分析过程结果
-    def printAnalyzeResult(self):
-        print(self.__line)
-        print("\t".join(
+    # 获取分析过程结果
+    def getAnalyzeResult(self):
+        resstr = self.__line + '\n'
+        resstr += "\t".join(
             "(%d)`%s`'%s'{%d:%s[%s->%s]}" % (i, self.__words[i], self.__postTags[i],
                                              self.__arcs[i].head - 1, self.__arcs[i].relation,
                                              self.__words[self.__arcs[i].head - 1],
-                                             self.__words[i]) for i in range(self.__length)))
-        print()
+                                             self.__words[i]) for i in range(self.__length))
+        resstr += '\n'
 
-        pass
+        return resstr
 
     # 获取分析结果
-    def getAnalyzeMatchResult(self, purpose='default'):
+    def getAnalyzeMatchResult(self, purpose: str = 'default'):
         voblist = self.__getVOBList()
 
         for pair in voblist:

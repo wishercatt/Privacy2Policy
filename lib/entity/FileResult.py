@@ -1,75 +1,82 @@
 from lib.core import MarkAnalyzeController
+from lib.entity import MatchResult
 from lib.log.Logger import LOGGER
 
 log = LOGGER
 
 
+# todo 拆成两个
 class FileResult:
-    filelabel = ''
-    keywords = None
-    mark = False
-    '''
+    __filelabel = ''
+    __keywords = None
+    __mark = False  # 是否为混合标记文件的结果
+    __delmark = None
+    '''no
     no : res = [mr]
     only mark : res = {'mark' : [mr], 'analyze':[mr], 'both':{'hash':[markmr, mr...]}
     '''
-    result = None
-    __delmark = None
+    __result = None
 
-    def __init__(self, filelabel='', res=None, mark=False):
-        self.filelabel = filelabel
-        self.mark = mark
-        if res is not None:
-            if not self.mark and type(res) != 'list':
-                log.error('type res is ' + type(res) + ' but without mark is should be list')
-            elif self.mark:
-                self.result = {'mark': res, 'analyze': [], 'both': {}}
+    # 带标记的必须用标记文件的结果初始化markres
+    def __init__(self, filelabel: str = '', keywords=None, markres=None, mark: bool = False):
+        if filelabel == '':
+            log.warning('there no file label when fileresult init')
+        self.__filelabel = filelabel
+        self.__mark = mark
+
+        if mark:
+            if markres is not None and (type(markres) == 'list' or type(markres) != 'tuple'):
+                self.__result = {'mark': list(markres), 'analyze': [], 'both': {}}
                 self.__delmark = set()
             else:
-                self.result = res
+                log.error('fr should be init by mark result list')
         else:
-            if self.mark:
-                log.error('init filemr need maredmrs')
-                return
-            self.result = None
+            self.__result = []
 
         pass
 
-    def addMatchResult(self, mr=None):
+    def addMatchResult(self, mr: MatchResult = None):
         if mr is None:
             log.warning('addMatchResult with None mr')
             return
-        if self.mark:
-            self.__addMatchResult_Mark(mr)
+        if self.__mark:
+            self.__addMatchResultWithMark(mr)
         else:
             self.__addMatchResult(mr)
 
         pass
 
-    def __addMatchResult(self, mr):
-        if self.result is None:
-            self.result = []
-        self.result.append(mr)
+    def __addMatchResult(self, mr: MatchResult):
+        if self.__result is None:
+            self.__result = []
+        self.__result.append(mr)
 
         pass
 
-    def __addMatchResult_Mark(self, mr):
+    def __addMatchResultWithMark(self, mr: MatchResult):
         flag = False
-        for i in range(len(self.result['mark'])):
-            if MarkAnalyzeController.getContentNoMark(self.result['mark'][i].line.strip()) == mr.line.strip():
-                hashid = hash(self.result['mark'][i].line.strip())
-                if hashid in self.result['both'].keys():
-                    self.result['both'][hashid].append(mr)
+        for i in range(len(self.__result['mark'])):
+            if MarkAnalyzeController.getContentNoMark(self.__result['mark'][i].line.strip()) == mr.line.strip():
+                hashid = hash(self.__result['mark'][i].line.strip())
+                if hashid in self.__result['both'].keys():
+                    self.__result['both'][hashid].append(mr)
                 else:
-                    self.result['both'][hashid] = [self.result['mark'][i], mr]
+                    self.__result['both'][hashid] = [self.__result['mark'][i], mr]
                 self.__delmark.add(i)
                 flag = True
                 break
         if not flag:
-            self.result['analyze'].append(mr)
+            self.__result['analyze'].append(mr)
 
         pass
 
-    def getDelList(self):
-        if self.mark:
-            return self.__delmark
-        return []
+    def getResult(self):
+        if self.__mark:
+            if self.__delmark != set() or self.__delmark is not None:
+                delmarklist = list(self.__delmark)
+                delmarklist.sort(reverse=True)
+                for i in delmarklist:
+                    del self.__result['mark'][i]
+                self.__delmark = set()
+
+        return self.__result

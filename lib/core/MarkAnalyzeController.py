@@ -24,21 +24,24 @@ def getContentNoMark(line):
 
 
 class MarkAnalyzeController:
-    __filepath = ''
-    __contents = {}  # {'filea': ''}
-    __matchreslist = {}  # {'filea':[mr]}
+    __filepath = ''  # dir or file
+    __contents = None  # {'filea': ''}
+    __matchreslist = None  # {'filea':[mr]}
 
-    def __init__(self, filepath='/input/markfiles/'):
+    def __init__(self, filepath='./input/markfiles/'):
 
         if tools.isAbsPath(filepath):
             self.__filepath = filepath
         else:
-            self.__filepath = lib.core.SOURCE_PATH + filepath
+            self.__filepath = tools.getAbsPathFromRoot(filepath)
         self.__matchreslist = {}
+        self.__contents = {}
 
         filelist = []
         if os.path.isdir(self.__filepath):
             for root, dirs, files in os.walk(self.__filepath):
+                if root != self.__filepath:
+                    break
                 for file in files:
                     filelist.append(self.__filepath + str(file))
         else:
@@ -55,8 +58,8 @@ class MarkAnalyzeController:
 
     def __del__(self):
         self.__filepath = ''
-        self.__contents = {}
-        self.__matchreslist = {}
+        self.__contents = None
+        self.__matchreslist = None
 
         pass
 
@@ -64,7 +67,6 @@ class MarkAnalyzeController:
         return self.__contents.keys()
 
     def getMatchResListByLabel(self, label):
-
         if self.__matchreslist[label]:
             return self.__matchreslist[label]
 
@@ -101,7 +103,7 @@ class MarkAnalyzeController:
                     mr.verb = mr.verb[:-1]
                 if piobj:
                     mr.pi.extend(piobj)
-                if not mr.isFlagValid():
+                if not mr.isMarkValid():
                     continue
                 reslist.append(mr)
             self.__matchreslist[label] = reslist

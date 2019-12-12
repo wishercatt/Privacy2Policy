@@ -19,13 +19,21 @@ def main():
     pass
 
 
+def hasElementChild(node):
+    count = 0
+    for child in node.childNodes:
+        if child.nodeType == 1:
+            count += 1
+    return count
+
+
 class XMLAnalyzeController:
     __filepath = ''
     __xmlcontents = None  # {'filea' : 'contentdom'}
     __pptosec = None  # 业务于段落的映射,可能又多个文件{'filea':{'purpose' : 'section'}}
     __keywords = None  # todo 写到文件
 
-    def __init__(self, filepath='/output/xml/', keywords=None):
+    def __init__(self, filepath: str = '/output/xml/', keywords=None):
         if type(keywords) == 'str':
             self.__keywords = [keywords]
         else:
@@ -65,10 +73,11 @@ class XMLAnalyzeController:
 
         pass
 
+    # todo keywords
     def release(self):
         for label in self.__pptosec:
             self.__pptosec[label] = {}
-        self.__keywords = []
+        # self.__keywords = []
 
         pass
 
@@ -89,13 +98,6 @@ class XMLAnalyzeController:
     def getAllLabel(self):
         return self.__xmlcontents.keys()
 
-    def __hasElementChild(self, node):
-        count = 0
-        for child in node.childNodes:
-            if child.nodeType == 1:
-                count += 1
-        return count
-
     def getPpAndSectionByLabel(self, label):
 
         if self.__pptosec[label]:
@@ -112,7 +114,7 @@ class XMLAnalyzeController:
             nownode = queue.get()
             if nownode.firstChild is None:  # 没有数据跳过该节点
                 continue
-            if self.__hasElementChild(nownode) > 0:
+            if hasElementChild(nownode) > 0:
                 for child in nownode.childNodes:
                     if child.nodeType == child.ELEMENT_NODE:
                         queue.put(child)
@@ -128,9 +130,9 @@ class XMLAnalyzeController:
                         if key in parentstr:
                             res[parentstr] = (res[parentstr] + childstr) if parentstr in res.keys() else childstr
                             break
-                        elif key in childstr:
-                            res[parentstr] = (res[parentstr] + childstr) if parentstr in res.keys() else childstr
-                            break
+                        # elif key in childstr:
+                        #     res[parentstr] = (res[parentstr] + childstr) if parentstr in res.keys() else childstr
+                        #     break
 
         self.__pptosec[label] = res
         return res

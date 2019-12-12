@@ -143,7 +143,7 @@ def _getMatchResultByXml(filepath: str = './output/xml/', keywords=None):
                     if Config.GlobalConfig.parse:
                         fw.write(nlpcon.getAnalyzeResult())
                         for mr in lists:
-                            fw.write(str(mr))
+                            fw.write(str(mr) + '\n')
                         fw.write('\n')
 
                     for mr in lists:

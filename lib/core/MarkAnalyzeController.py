@@ -77,7 +77,8 @@ class MarkAnalyzeController:
         reslist = []
         for line in self.__contents[label]:
             p = re.compile(r'[。；]')
-            line = mrtools.preProcessLine(line)
+            # line = mrtools.preProcessLine(line)
+            line = line
             splines = p.split(line)
             for l in splines:
                 mr = lib.entity.MatchResult.MatchResult(line=l)

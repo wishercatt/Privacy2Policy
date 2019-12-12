@@ -89,7 +89,8 @@ class NlpAnalyzeController:
         pass
 
     def parseInputs(self, inputs):
-        self.__line = mrtools.preProcessLine(inputs)
+        # self.__line = mrtools.preProcessLine(inputs)
+        self.__line = inputs
         self.__words = self.__segMentor.segment(self.__line)
         self.__length = len(self.__words)
         self.__postTags = self.__postTagger.postag(self.__words)
@@ -129,15 +130,15 @@ class NlpAnalyzeController:
             nlist = [pair[0]]
             nlist.extend(self.__getCOOListById(pair[0]))
             pis = []
-            perres = ''
             for n in nlist:
-                start = self.__getATTStartById(n)
-                if start is not -1:
-                    i = start
-                    while i <= n:
-                        perres += self.__words[i]
-                        i += 1
-                    pis.append(perres)
+                perres = ''
+                # start = self.__getATTStartById(n)
+                start = self.__getChildStartbyId(n)
+                end = self.__getChildEndById(n)
+                while start <= end:
+                    perres += self.__words[start]
+                    start += 1
+                pis.append(perres)
             mr.pi = pis
             if mr.isVaild():
                 self.__resultList.append(mr)
@@ -195,6 +196,23 @@ class NlpAnalyzeController:
                 start = i
 
         return start
+
+    def __getChildStartbyId(self, iid):
+        start = iid
+        for i in range(iid, -1, -1):
+            if self.__arcs[i].relation != 'COO' and self.__arcs[i].relation != 'WP' and\
+                    self.__arcs[i].head - 1 == iid:
+                start = i
+
+        return start if start != -1 else iid
+
+    def __getChildEndById(self, iid):
+        end = iid
+        for i in range(iid, self.__length):
+            if self.__arcs[i].relation != 'COO' and self.__arcs[i].relation != 'WP' and\
+                    self.__arcs[i].head - 1 == iid:
+                end = i
+        return end if end != self.__length else iid
 
 
 if __name__ == '__main__':

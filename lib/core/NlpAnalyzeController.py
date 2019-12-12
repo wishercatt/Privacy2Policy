@@ -106,12 +106,13 @@ class NlpAnalyzeController:
 
     # 获取分析过程结果
     def getAnalyzeResult(self):
-        resstr = self.__line + '\n'
+        resstr = '\n' + self.__line + '\n\t'
         resstr += "\t".join(
-            "(%d)`%s`'%s'{%d:%s[%s->%s]}" % (i, self.__words[i], self.__postTags[i],
-                                             self.__arcs[i].head - 1, self.__arcs[i].relation,
-                                             self.__words[self.__arcs[i].head - 1],
-                                             self.__words[i]) for i in range(self.__length))
+            "(%d)`%s`'%s'{%d:%s[%s->%s]}%s" % (i, self.__words[i], self.__postTags[i],
+                                               self.__arcs[i].head - 1, self.__arcs[i].relation,
+                                               self.__words[self.__arcs[i].head - 1],
+                                               self.__words[i], '\n' if (i + 1) % 4 == 0 else '') for i in
+            range(self.__length))
         resstr += '\n'
 
         return resstr

@@ -15,6 +15,8 @@ pip install ./data/dependencies/pyltp-0.2.1-cp37-cp37m-win_amd64.whl
 使用
 -i 指定mhtml文件/文件夹
 -m 指定标记文件/文件夹
+-p 记录分析结果
+-s 分析指定句子
 ```
-Privacy2Policy.py -i ./input/mhtml -m ./input/markfiles
+Privacy2Policy.py -l ./input/mhtml -m ./input/markfiles -p
 ```

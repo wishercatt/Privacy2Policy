@@ -28,3 +28,13 @@ ACTOR_VERB_LIST_PATH = './data/match/actor_verb_list.txt'  # actor verb 映射
 PRIVACY_POLICY_JAR_PATH = './data/dependencies/JarPrivacyPolicy.jar'
 INPUT_MHTML_PATH = './input/mhtml'
 OUTPUT_XML_PATH = './output/xml'
+
+"""
+    全局配置
+"""
+class GlobalConfig:
+    htmlfilepath = ''
+    xmlfilepath = ''
+    sentence = ''
+    markfilepath = ''
+    parse = False

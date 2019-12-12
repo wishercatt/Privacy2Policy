@@ -1,5 +1,6 @@
 import os
 from os.path import dirname, abspath
+import Config
 
 import lib.core.XMLAnalyzeController as XMLAnalyzeController
 import lib.core.NlpAnalyzeController as NlpAnalyzeController
@@ -16,12 +17,29 @@ SOURCE_PATH = dirname(abspath(__file__))
 
 
 def main():
-    args = cmdLineParser()
-    if len(args) == 2:
-        outputMatchResultComByHtmlMark(inputpath=args[0][1], markpath=args[1][1],
+    cmdLineParser()
+    if Config.GlobalConfig.sentence != '':
+        printSentenceAnalyze(Config.GlobalConfig.sentence)
+    elif Config.GlobalConfig.htmlfilepath != '':
+        outputMatchResultComByHtmlMark(inputpath=Config.GlobalConfig.htmlfilepath,
+                                       markpath=Config.GlobalConfig.markfilepath,
                                        keywords=['商品展示', '搜索', '下单', '交付', '展示'])
+    elif Config.GlobalConfig.xmlfilepath != '':
+        outputMatchResultComByXmlMark(xmlpath=Config.GlobalConfig.htmlfilepath,
+                                      markpath=Config.GlobalConfig.markfilepath,
+                                      keywords=['商品展示', '搜索', '下单', '交付', '展示'])
     else:
-        log.error('err args')
+        outputMatchResultComByHtmlMark(keywords=['商品展示', '搜索', '下单', '交付', '展示'])
+    pass
+
+
+def printSentenceAnalyze(input: str):
+    nlpcon = NlpAnalyzeController.NlpAnalyzeController()
+    nlpcon.parseInputs(input)
+    mrlist = nlpcon.getAnalyzeMatchResult()
+    print(nlpcon.getAnalyzeResult())
+    for mr in mrlist:
+        print(str(mr))
     pass
 
 
@@ -49,8 +67,8 @@ def outputMatchResultComByXmlMark(xmlpath: str = './output/xml/', markpath: str 
             o = reslabel['both'][b]
             print('\n\t' + o[0].line)
             print('\t(m)' + o[0].toString())
+            markcount += 1
             for a in o[1:]:
-                markcount += 1
                 m = mrtools.isMatchWithMark(a, o[0])
                 if m == 2:
                     print('\t(a)[ok] ' + a.toString())
@@ -107,6 +125,12 @@ def _getMatchResultByXml(filepath: str = './output/xml/', keywords=None):
 
     res = {}
     for label in xmlcon.getAllLabel():
+
+        if Config.GlobalConfig.parse:
+            parsefilename = 'parseresult_' + label + '.txt'
+            parsefilepath = tools.getAbsPathFromRoot('/output/' + parsefilename)
+            fw = open(parsefilepath, 'w', encoding='utf-8')
+
         res[label] = FileResult.FileResult(filelabel=label)
         ppandsecs = xmlcon.getPpAndSection()
         for pplabel in ppandsecs.keys():
@@ -115,10 +139,20 @@ def _getMatchResultByXml(filepath: str = './output/xml/', keywords=None):
                 for l in lines:
                     nlpcon.parseInputs(l)
                     lists = nlpcon.getAnalyzeMatchResult(pp)
+
+                    if Config.GlobalConfig.parse:
+                        fw.write(nlpcon.getAnalyzeResult())
+                        for mr in lists:
+                            fw.write(str(mr))
+                        fw.write('\n')
+
                     for mr in lists:
                         if mr.isVaild():
                             res[label].addMatchResult(mr)
                     nlpcon.release()
+
+        if Config.GlobalConfig.parse:
+            fw.close()
 
     return res
 
